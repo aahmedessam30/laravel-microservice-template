@@ -1,0 +1,119 @@
+openapi: 3.1.0
+
+info:
+  title: "{{ service_name }} API v1"
+  version: "v1"
+  description: |
+    Version 1 of the microservice API.
+
+    Note: Health and version endpoints are available at /api/health and /api/version (non-versioned).
+
+    Add your v1-specific endpoints here. All endpoints in this spec are prefixed with /api/v1/
+  contact:
+    name: API Support
+    email: api-support@example.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://api.example.com/v1
+    description: Production server
+
+tags:
+  - name: Your Feature
+    description: Add your feature endpoints here
+
+paths:
+  # Add your v1 endpoints here
+  # Example:
+  # /your-endpoint:
+  #   get:
+  #     tags:
+  #       - Your Feature
+  #     summary: Your endpoint
+  #     description: Describe your endpoint
+  #     operationId: yourEndpoint
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/BaseResponse"
+
+components:
+  schemas:
+    BaseResponse:
+      type: object
+      required:
+        - success
+        - data
+        - message
+        - code
+        - errors
+        - correlation_id
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        data:
+          type: object
+          nullable: true
+          description: Response data payload
+        message:
+          type: string
+          description: Human-readable message
+        code:
+          type: integer
+          description: HTTP status code
+        errors:
+          type: array
+          items:
+            type: object
+          description: Array of error objects (empty on success)
+        correlation_id:
+          type: string
+          format: uuid
+          description: Unique request correlation ID for tracing
+
+    # Add your custom response schemas here
+    # Example:
+    # YourResponse:
+    #   allOf:
+    #     - $ref: "#/components/schemas/BaseResponse"
+    #     - type: object
+    #       properties:
+    #         data:
+    #           type: object
+    #           properties:
+    #             your_field:
+    #               type: string
+
+    ErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/BaseResponse"
+        - type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+            data:
+              type: object
+              nullable: true
+              example: null
+            errors:
+              type: array
+              items:
+                type: object
+              example:
+                - field: email
+                  message: The email field is required
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security: []
