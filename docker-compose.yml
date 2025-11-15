@@ -17,8 +17,10 @@ services:
       - APP_ENV=${APP_ENV:-local}
       - APP_DEBUG=${APP_DEBUG:-true}
       - DB_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
       - mysql
+      - redis
 
   # Nginx Service
   nginx:
@@ -52,10 +54,48 @@ services:
     networks:
       - microservice-network
 
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: microservice-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-null}"
+    volumes:
+      - redis-data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - microservice-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # phpMyAdmin Service
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: microservice-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-microservice}
+      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - microservice-network
+    depends_on:
+      - mysql
+
 networks:
   microservice-network:
     driver: bridge
 
 volumes:
   mysql-data:
+    driver: local
+  redis-data:
     driver: local

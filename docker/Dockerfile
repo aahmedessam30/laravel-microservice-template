@@ -36,6 +36,9 @@ RUN pecl install redis \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy PHP-FPM pool configuration
+COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Production stage
 FROM base AS production
 
