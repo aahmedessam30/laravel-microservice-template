@@ -59,7 +59,7 @@ services:
     image: redis:alpine
     container_name: microservice-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-null}"
+    command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
     ports:
@@ -79,16 +79,15 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: ${DB_USERNAME:-microservice}
-      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+      PMA_PORT: ${DB_PORT:-3306}
       UPLOAD_LIMIT: 256M
     ports:
       - "${PHPMYADMIN_PORT:-8080}:80"
     networks:
       - microservice-network
     depends_on:
-      - mysql
+      mysql:
+        condition: service_started
 
 networks:
   microservice-network:
