@@ -4,7 +4,7 @@ namespace App\DTO;
 
 use App\Contracts\DTO\BaseDataTransferObject;
 
-abstract class BaseDTO extends BaseDataTransferObject
+abstract class BaseDTO implements BaseDataTransferObject
 {
     /**
      * Convert the DTO to an array.
