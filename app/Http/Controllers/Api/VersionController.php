@@ -12,11 +12,11 @@ class VersionController extends BaseController
     public function index(): \Illuminate\Http\JsonResponse
     {
         return $this->success([
-            'service_name'    => config('service.service_name'),
+            'service_name' => config('service.service_name'),
             'service_version' => config('service.service_version'),
-            'php_version'     => PHP_VERSION,
+            'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
-            'environment'     => app()->environment(),
+            'environment' => app()->environment(),
         ]);
     }
 }

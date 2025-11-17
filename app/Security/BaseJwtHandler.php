@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Firebase\JWT\JWT;
-use App\Exceptions\ApiException;
-use Illuminate\Support\Facades\File;
 use App\Contracts\Security\JwtKeyLoaderContract;
+use App\Exceptions\ApiException;
+use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\File;
 
 abstract class BaseJwtHandler implements JwtKeyLoaderContract
 {
@@ -21,8 +21,8 @@ abstract class BaseJwtHandler implements JwtKeyLoaderContract
 
     public function __construct()
     {
-        $this->publicKeyPath = config('jwt.public_key_path');
-        $this->privateKeyPath = config('jwt.private_key_path');
+        $this->publicKeyPath = $this->resolvePath(config('jwt.public_key_path') ?: base_path('keys/public.pem'));
+        $this->privateKeyPath = $this->resolvePath(config('jwt.private_key_path') ?: base_path('keys/private.pem'));
         $this->algorithms = config('jwt.algorithms', ['RS256']);
         $this->leeway = config('jwt.leeway', 60);
 
@@ -65,7 +65,7 @@ abstract class BaseJwtHandler implements JwtKeyLoaderContract
     private function loadKey(string $path, string $notFoundMessage, string $emptyMessage): string
     {
         if (! File::exists($path)) {
-            throw new ApiException($notFoundMessage, 500);
+            throw new ApiException($notFoundMessage.' Path: '.$path, 500);
         }
 
         $key = File::get($path);
@@ -75,6 +75,43 @@ abstract class BaseJwtHandler implements JwtKeyLoaderContract
         }
 
         return $key;
+    }
+
+    /**
+     * Resolve the absolute path of a key file.
+     * Handles relative paths, absolute paths, and URLs.
+     */
+    private function resolvePath(string $path): string
+    {
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        if ($this->isAbsolutePath($path)) {
+            return $path;
+        }
+
+        if (str_starts_with($path, 'storage/')) {
+            return storage_path(substr($path, strlen('storage/')));
+        }
+
+        return base_path($path);
+    }
+
+    /**
+     * Check if a path is absolute.
+     */
+    private function isAbsolutePath(string $path): bool
+    {
+        if (str_starts_with($path, '/')) {
+            return true;
+        }
+
+        if (preg_match('/^[a-zA-Z]:[\\\\\/]/', $path)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

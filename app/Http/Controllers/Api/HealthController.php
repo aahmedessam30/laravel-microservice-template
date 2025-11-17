@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
-use Illuminate\Support\Facades\{Cache, DB, Queue};
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 class HealthController extends BaseController
 {
@@ -16,16 +18,16 @@ class HealthController extends BaseController
     {
         $checks = [
             'database' => $this->checkDatabase(),
-            'cache'    => $this->checkCache(),
-            'queue'    => $this->checkQueue(),
+            'cache' => $this->checkCache(),
+            'queue' => $this->checkQueue(),
         ];
 
-        $healthy = collect($checks)->every(fn($check) => $check['status'] === 'ok');
+        $healthy = collect($checks)->every(fn ($check) => $check['status'] === 'ok');
 
         return $this->success([
-            'service'   => config('service.service_name'),
-            'status'    => $healthy ? 'healthy' : 'unhealthy',
-            'checks'    => $checks,
+            'service' => config('service.service_name'),
+            'status' => $healthy ? 'healthy' : 'unhealthy',
+            'checks' => $checks,
             'timestamp' => now()->toIso8601String(),
         ]);
     }
@@ -39,13 +41,13 @@ class HealthController extends BaseController
             DB::connection()->getPdo();
 
             return [
-                'status'  => 'ok',
+                'status' => 'ok',
                 'message' => 'Database connection successful',
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Database connection failed: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Database connection failed: '.$e->getMessage(),
             ];
         }
     }
@@ -56,7 +58,7 @@ class HealthController extends BaseController
     protected function checkCache(): array
     {
         try {
-            $key = 'health_check_' . time();
+            $key = 'health_check_'.time();
             Cache::put($key, 'test', 1);
             $value = Cache::get($key);
             Cache::forget($key);
@@ -68,7 +70,7 @@ class HealthController extends BaseController
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Cache connection failed: ' . $e->getMessage(),
+                'message' => 'Cache connection failed: '.$e->getMessage(),
             ];
         }
     }
@@ -89,7 +91,7 @@ class HealthController extends BaseController
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Queue connection failed: ' . $e->getMessage(),
+                'message' => 'Queue connection failed: '.$e->getMessage(),
             ];
         }
     }

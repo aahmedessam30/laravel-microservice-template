@@ -35,7 +35,7 @@ class OpenApiService implements OpenApiServiceContract
             return $this->applyDynamicConfiguration($specification);
         } catch (ParseException $e) {
             throw new ApiException(
-                'Failed to parse OpenAPI specification: ' . $e->getMessage(),
+                'Failed to parse OpenAPI specification: '.$e->getMessage(),
                 500
             );
         }
