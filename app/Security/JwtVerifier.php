@@ -11,23 +11,9 @@ use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
-use Illuminate\Support\Facades\File;
 
-class JwtVerifier implements JwtVerifierContract
+class JwtVerifier extends BaseJwtHandler implements JwtVerifierContract
 {
-    private string $publicKeyPath;
-
-    private array $algorithms;
-
-    private int $leeway;
-
-    public function __construct()
-    {
-        $this->publicKeyPath = config('jwt.public_key_path');
-        $this->algorithms    = config('jwt.algorithms', ['RS256']);
-        $this->leeway        = config('jwt.leeway', 60);
-    }
-
     /**
      * Verify and decode a JWT token.
      *
@@ -37,12 +23,10 @@ class JwtVerifier implements JwtVerifierContract
     {
         $publicKey = $this->loadPublicKey();
 
-        JWT::$leeway = $this->leeway;
-
         try {
             $decoded = JWT::decode(
                 $jwt,
-                new Key($publicKey, $this->algorithms[0])
+                new Key($publicKey, $this->getAlgorithm())
             );
 
             return $this->convertToArray($decoded);
@@ -57,36 +41,5 @@ class JwtVerifier implements JwtVerifierContract
         } catch (\DomainException $e) {
             throw new ApiException('Token verification failed: '.$e->getMessage(), 401);
         }
-    }
-
-    /**
-     * Load the public key from the configured path.
-     *
-     * @throws ApiException
-     */
-    private function loadPublicKey(): string
-    {
-        if (! File::exists($this->publicKeyPath)) {
-            throw new ApiException(
-                'JWT public key not found. Please configure JWT_PUBLIC_KEY_PATH.',
-                500
-            );
-        }
-
-        $publicKey = File::get($this->publicKeyPath);
-
-        if (empty($publicKey)) {
-            throw new ApiException('JWT public key is empty', 500);
-        }
-
-        return $publicKey;
-    }
-
-    /**
-     * Convert decoded JWT object to associative array.
-     */
-    private function convertToArray(object $decoded): array
-    {
-        return json_decode(json_encode($decoded), true);
     }
 }

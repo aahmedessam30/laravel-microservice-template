@@ -9,4 +9,7 @@ Route::get('/health', [HealthController::class, 'index'])->name('health');
 Route::get('/version', [VersionController::class, 'index'])->name('version');
 
 // Version 1
-Route::prefix('v1')->group(base_path('routes/api_v1.php'));
+Route::group(
+    ['prefix' => 'v1', 'as' => 'api.v1.'],
+    base_path('routes/api_v1.php')
+);

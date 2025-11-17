@@ -9,9 +9,9 @@ Route::get('/', function () {
 
 // API Documentation Routes
 Route::get('/docs/{version?}', [ApiDocumentationController::class, 'docs'])
-    ->name('api.docs')
+    ->name('docs')
     ->where('version', 'v[0-9]+');
 
 Route::get('/openapi/{version?}.json', [ApiDocumentationController::class, 'json'])
-    ->name('api.openapi')
+    ->name('openapi')
     ->where('version', 'v[0-9]+');
