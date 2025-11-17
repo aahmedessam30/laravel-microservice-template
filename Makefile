@@ -115,10 +115,7 @@ clean: ## Clean cache and temporary files
 	@echo -e "$(BOLD)$(CYAN)================================================================$(NC)"
 	@echo -e "$(BOLD)$(CYAN)                     Cleaning cache...$(NC)"
 	@echo -e "$(BOLD)$(CYAN)================================================================$(NC)"
-	docker compose exec app php artisan cache:clear
-	docker compose exec app php artisan config:clear
-	docker compose exec app php artisan route:clear
-	docker compose exec app php artisan view:clear
+	docker compose exec app php artisan optimize:clear
 	@echo -e "$(BOLD)$(GREEN)[OK] Cache cleared!$(NC)"
 
 shell: ## Access app container shell
